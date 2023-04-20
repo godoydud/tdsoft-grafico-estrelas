@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
  *
  * PS: O código abaixo é apenas um esqueleto para vocês implementarem.
  *     Vocês podem (e devem) alterar tudo que quiserem, menos a interface
- *     Além disso, usem dos componentes que forem necessários, para issio importem o pacote junto aos "imports".
+ *     Além disso, usem dos componentes que forem necessários, para isso importem o pacote junto aos "imports".
  */
 export function GraficoEstrelas(props) {
   return <div>{'//TODO'}</div>;
