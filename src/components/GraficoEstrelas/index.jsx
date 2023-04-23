@@ -45,7 +45,6 @@ const aplicarEscalaLog = (data, escala) => {
   return data;
 }
 
-
 const RenderLineChart = (props) => {
   return (
     <LineChart
