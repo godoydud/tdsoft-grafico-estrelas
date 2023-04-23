@@ -2,20 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 
-/**
- * Componente que representa o gráfico de estrelas.
- * Descrição completa está no README.md.
- *
- * PS: O código abaixo é apenas um esqueleto para vocês implementarem.
- *     Vocês podem (e devem) alterar tudo que quiserem, menos a interface
- *     Além disso, usem dos componentes que forem necessários, para isso importem o pacote junto aos "imports".
- */
-
 const agruparPorData = (estrelas, agrupamento) => {
   let agrupamentoPorData = estrelas.reduce((acc, estrela) => {
     const data = new Date(estrela.starred_at);
 
-    // Formatar data por agrupamento (dia, semana, mes, ano)
     if (agrupamento === 'dia') {
       data.setHours(0, 0, 0, 0);
     } else if (agrupamento === 'semana') {
@@ -29,7 +19,6 @@ const agruparPorData = (estrelas, agrupamento) => {
       data.setHours(0, 0, 0, 0);
     }
 
-    // Verificar se a data já existe no objeto
     if (acc[data]) {
       acc[data] += 1;
     } else {
@@ -38,36 +27,48 @@ const agruparPorData = (estrelas, agrupamento) => {
     return acc;
   }, {});
 
-  // Ordenar por data
   agrupamentoPorData = Object.entries(agrupamentoPorData).sort((a, b) => {
     return new Date(a[0]) - new Date(b[0]);
   });
-  const data = [];
-  agrupamentoPorData.forEach((item) => {
-    data.push({ name: item[0], uv: item[1], pv: item[1], amt: item[1] });
-  });
 
-  return data;
+  return agrupamentoPorData.map((data) => {
+    return { date: data[0], estrelas: data[1] };
+  });
 };
 
-const RenderLineChart = (data) => (
-  <LineChart width={730} height={250} data={data}
-    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-    <CartesianGrid strokeDasharray="3 3" />
-    <XAxis dataKey="name" />
-    <YAxis />
-    <Tooltip />
-    <Legend />
-    <Line type="monotone" dataKey="pv" stroke="#8884d8" />
-    <Line type="monotone" dataKey="uv" stroke="#82ca9d" />
-  </LineChart>
-);
+const aplicarEscalaLog = (data, escala) => {
+  if (escala === 'log') {
+    data.forEach((item) => {
+      item.estrelas = Math.log(item.estrelas);
+    });
+  }
+  return data;
+}
+
+
+const RenderLineChart = (props) => {
+  return (
+    <LineChart
+      width={730}
+      height={250}
+      data={props.data}
+      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+    >
+      <CartesianGrid strokeDasharray="3 3" />
+      <XAxis dataKey="date" />
+      <YAxis scale={props.escala} />
+      <Tooltip />
+      <Legend />
+      <Line type="monotone" dataKey="estrelas" stroke="#8884d8" />
+    </LineChart>
+  );
+};
 
 export function GraficoEstrelas(props) {
   const agrupamentoPorData = agruparPorData(props.estrelas, props.agrupamento);
-
-  console.log(agrupamentoPorData);
-  return <div><RenderLineChart data={agrupamentoPorData}/></div>;
+  const dadosComEscala = aplicarEscalaLog(agrupamentoPorData, props.escala);
+  
+  return <div><RenderLineChart data={dadosComEscala} /></div>;
 }
 
 // Definição dos tipos das propriedades recebidas.
