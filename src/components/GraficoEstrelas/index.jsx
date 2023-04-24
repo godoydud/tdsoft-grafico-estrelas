@@ -42,6 +42,12 @@ const aplicarEscalaLog = (data, escala) => {
       item.estrelas = Math.log(item.estrelas);
     });
   }
+
+  data.forEach((item) => {
+    const data = new Date(item.date);
+    item.date = `${data.getDate()}/${data.getMonth() + 1}/${data.getFullYear()}`;
+  });
+  
   return data;
 }
 
@@ -66,7 +72,7 @@ const RenderLineChart = (props) => {
 export function GraficoEstrelas(props) {
   const agrupamentoPorData = agruparPorData(props.estrelas, props.agrupamento);
   const dadosComEscala = aplicarEscalaLog(agrupamentoPorData, props.escala);
-  
+  console.log(dadosComEscala);
   return <div><RenderLineChart data={dadosComEscala} /></div>;
 }
 
