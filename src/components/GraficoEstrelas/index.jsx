@@ -36,28 +36,41 @@ const agruparPorData = (estrelas, agrupamento) => {
   });
 };
 
-const aplicarEscalaLog = (data, escala) => {
+const aplicarEscalaLog = (data, escala, agrupamento) => {
   if (escala === 'log') {
     data.forEach((item) => {
-      item.estrelas = Math.log(item.estrelas);
+      item.estrelas = Math.log10(item.estrelas);
     });
   }
 
   data.forEach((item) => {
     const data = new Date(item.date);
-    item.date = `${data.getDate()}/${data.getMonth() + 1}/${data.getFullYear()}`;
+    if (agrupamento === 'dia') 
+      item.date = `${data.getDate()}/${data.getMonth() + 1}/${data.getFullYear()}`;
+    else if (agrupamento === 'semana')
+      item.date = `${data.getDate()}/${data.getMonth() + 1}/${data.getFullYear()}`;
+    else if (agrupamento === 'mes')
+      item.date = `${data.getMonth() + 1}/${data.getFullYear()}`;
+    else if (agrupamento === 'ano')
+      item.date = `${data.getFullYear()}`;
   });
   
+  return data;
+}
+
+const aplicarAcumulativo = (data) => {
+  for (let i = 1; i < data.length; i++) {
+    data[i].estrelas += data[i - 1].estrelas;
+  }
   return data;
 }
 
 const RenderLineChart = (props) => {
   return (
     <LineChart
-      width={730}
-      height={250}
+      width={1330}
+      height={650}
       data={props.data}
-      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
     >
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis dataKey="date" />
@@ -71,9 +84,10 @@ const RenderLineChart = (props) => {
 
 export function GraficoEstrelas(props) {
   const agrupamentoPorData = agruparPorData(props.estrelas, props.agrupamento);
-  const dadosComEscala = aplicarEscalaLog(agrupamentoPorData, props.escala);
-  console.log(dadosComEscala);
-  return <div><RenderLineChart data={dadosComEscala} /></div>;
+  const dadosComEscala = aplicarEscalaLog(agrupamentoPorData, props.escala, props.agrupamento);
+  const result = props.cumulativa ?  aplicarAcumulativo(dadosComEscala) : dadosComEscala;
+
+  return <div><RenderLineChart data={result} /></div>;
 }
 
 // Definição dos tipos das propriedades recebidas.
@@ -86,10 +100,12 @@ GraficoEstrelas.propTypes = {
   ).isRequired,
   agrupamento: PropTypes.oneOf(['dia', 'semana', 'mes', 'ano']),
   escala: PropTypes.oneOf(['linear', 'log']),
+  cumulativa: PropTypes.bool, // bonus
 };
 
 // Definição dos valores padrão das propriedades.
 GraficoEstrelas.defaultProps = {
   agrupamento: 'dia',
   escala: 'linear',
+  cumulativa: false, // bonus
 };
