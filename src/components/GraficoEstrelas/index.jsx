@@ -36,27 +36,41 @@ const agruparPorData = (estrelas, agrupamento) => {
   });
 };
 
+function getWeek(date) {
+  const oneJan = new Date(date.getFullYear(), 0, 1);
+  const timeDiff = date - oneJan;
+  const dayOfYear = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+  const weekNum = Math.ceil(dayOfYear / 7);
+  return weekNum;
+}
+
+const organizaDateTime = (data, agrupamento) => {
+  data.forEach((item) => {
+    const data = new Date(item.date);
+    if (agrupamento === 'dia')
+      item.date = `${data.getDate()}/${data.getMonth() + 1}/${data.getFullYear()}`;
+    else if (agrupamento === 'semana') {
+      const semana = getWeek(data);
+      item.date = `${semana}/${data.getFullYear()}`;
+    }
+    else if (agrupamento === 'mes')
+      item.date = `${data.getMonth() + 1}/${data.getFullYear()}`;
+    else if (agrupamento === 'ano')
+      item.date = `${data.getFullYear()}`;
+  });
+  return data;
+};
+
 const aplicarEscalaLog = (data, escala, agrupamento) => {
   if (escala === 'log') {
     data.forEach((item) => {
       item.estrelas = Math.log10(item.estrelas);
     });
   }
-
-  data.forEach((item) => {
-    const data = new Date(item.date);
-    if (agrupamento === 'dia') 
-      item.date = `${data.getDate()}/${data.getMonth() + 1}/${data.getFullYear()}`;
-    else if (agrupamento === 'semana')
-      item.date = `${data.getDate()}/${data.getMonth() + 1}/${data.getFullYear()}`;
-    else if (agrupamento === 'mes')
-      item.date = `${data.getMonth() + 1}/${data.getFullYear()}`;
-    else if (agrupamento === 'ano')
-      item.date = `${data.getFullYear()}`;
-  });
-  
+  organizaDateTime(data, agrupamento);
   return data;
 }
+
 
 const aplicarAcumulativo = (data) => {
   for (let i = 1; i < data.length; i++) {
@@ -85,7 +99,7 @@ const RenderLineChart = (props) => {
 export function GraficoEstrelas(props) {
   const agrupamentoPorData = agruparPorData(props.estrelas, props.agrupamento);
   const dadosComEscala = aplicarEscalaLog(agrupamentoPorData, props.escala, props.agrupamento);
-  const result = props.cumulativa ?  aplicarAcumulativo(dadosComEscala) : dadosComEscala;
+  const result = props.cumulativa ? aplicarAcumulativo(dadosComEscala) : dadosComEscala;
 
   return <div><RenderLineChart data={result} /></div>;
 }
